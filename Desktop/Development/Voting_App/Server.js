@@ -1,33 +1,21 @@
-const express = require('express');
+const express = require('express')
 const app = express();
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-const dbConnect = require('./config/db');
-
-// Load the config from env
+const db = require('./db');
 require('dotenv').config();
-const PORT = process.env.PORT || 4000;
 
-// Middleware Function
-const logRequest = (req, res, next)=>{
-    console.log(`${new Date().toLocaleString()}, Request Made to: ${req.originalUrl}`);
-    next(); // move to the next phase
-}
-app.use(logRequest);
-
-// Establish connection to the database
-dbConnect();
-
-// const {jwtAuthMiddleware} = require('./jwt');
+const bodyParser = require('body-parser'); 
+app.use(bodyParser.json()); // req.body
+const PORT = process.env.PORT || 3000;
 
 // Import the router files
 const userRoutes = require('./routes/userRoutes');
 const candidateRoutes = require('./routes/candidateRoutes');
 
-// Use the router
+// Use the routers
 app.use('/user', userRoutes);
 app.use('/candidate', candidateRoutes);
 
+
 app.listen(PORT, ()=>{
-    console.log(`Server started at PORT ${PORT}`)
-});
+    console.log('listening on port 3000');
+})

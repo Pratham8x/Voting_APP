@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-// Define the User Schema
+// Define the Person schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -21,14 +21,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    aadharNumber: {
+    aadharCardNumber: {
         type: Number,
         required: true,
-        unique: true
+        unqiue: true
     },
     password: {
         type: String,
-        required: true,
+        required: true
     },
     role: {
         type: String,
@@ -39,15 +39,14 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-
 });
+
 
 userSchema.pre('save', async function(next){
     const person = this;
 
     // Hash the password only if it has been modified (or is new)
     if(!person.isModified('password')) return next();
-
     try{
         // hash password generation
         const salt = await bcrypt.genSalt(10);
@@ -72,7 +71,6 @@ userSchema.methods.comparePassword = async function(candidatePassword){
         throw err;
     }
 }
-
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
