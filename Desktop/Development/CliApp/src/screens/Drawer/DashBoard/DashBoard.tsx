@@ -4,17 +4,15 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity,
   Dimensions,
   ScrollView,
 } from 'react-native'
 import Ionicons from '@react-native-vector-icons/ionicons'
-import { useNavigation, DrawerActions } from '@react-navigation/native'
 import RevVSExp from './RevVsExp'
 import ProjectProgress from './ProjectProgress'
 import TeamDist from './TeamDist'
 import RecentActivity from './RecentActivity'
-import TopTabs from '../../../components/common/TopTabs'
+import TopTabs from '../../TopTabs/TopTabs'
 
 const { width } = Dimensions.get('window')
 const CARD_WIDTH = (width - 48) / 2
@@ -69,13 +67,12 @@ const statusCards = [
 ]
 
 const Dashboard = () => {
-  const navigation = useNavigation()
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-<TopTabs />
+        <TopTabs />
 
         {/* Title block */}
         <View style={styles.titleBlock}>
@@ -118,10 +115,10 @@ const Dashboard = () => {
             </View>
           ))}
         </View>
-<RevVSExp/>
-<ProjectProgress />
-<TeamDist/>
-<RecentActivity />
+        <RevVSExp />
+        <ProjectProgress />
+        <TeamDist />
+        <RecentActivity />
 
       </ScrollView>
     </SafeAreaView>
@@ -247,3 +244,5 @@ const styles = StyleSheet.create({
 })
 
 export default Dashboard
+
+

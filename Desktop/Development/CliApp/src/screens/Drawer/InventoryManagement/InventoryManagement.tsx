@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import TopTabs from '../../TopTabs/TopTabs'
 
 const InventoryManagement = () => {
   return (
-    <View>
-      <Text>InventoryManagement</Text>
-    </View>
+    <View style={{ flex: 1, backgroundColor: "#000" }}>
+      <TopTabs />    </View>
   )
 }
 

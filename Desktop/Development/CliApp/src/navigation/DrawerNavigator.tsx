@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import Ionicons from '@react-native-vector-icons/ionicons'
-
 import CustomDrawerContent from './CustomDrawerContent'
+import { useAppSelector } from '../hooks/reduxHooks'
+
+// Screen imports
 import Bidding from '../screens/Drawer/Bidding/Bidding'
 import ProjectManagement from '../screens/Drawer/ProjectManagement/ProjectManagement'
 import Users from '../screens/Drawer/Users/Users'
@@ -19,15 +21,72 @@ import QualityControl from '../screens/Drawer/QualityControl/QualityControl'
 import CRM from '../screens/Drawer/CRM/CRM'
 import Dashboard from '../screens/Drawer/DashBoard/DashBoard'
 import MyAttendance from '../screens/Drawer/MyAttendance/MyAttendance'
+import FinanceReport from '../screens/Drawer/FinanceReport/FinanceReport'
+import { menuConfig } from '../constants/rolePermissions'
+import { UserRole } from '../features/auth/authTypes'
+
+// Map screenName (from rolePermissions) → actual component
+const screenComponentMap: Record<string, React.ComponentType<any>> = {
+  Dashboard,
+  MyAttendance,
+  ProjectManagement,
+  Users,
+  Bidding,
+  InventoryManagement,
+  SalesAndBilling,
+  PurchaseManagement,
+  ContractManagement,
+  EquipmentManagement,
+  DocumentManagement,
+  HrAndPayroll,
+  HealthAndSafety,
+  ClientAndVendor,
+  QualityControl,
+  FinanceReport,
+  CRM,
+}
+
+// Map screenName → drawer display name (what user sees)
+const screenDisplayName: Record<string, string> = {
+  Dashboard: 'Dashboard',
+  MyAttendance: 'My Attendance',
+  ProjectManagement: 'Project Management',
+  Users: 'Users',
+  Bidding: 'Bidding',
+  InventoryManagement: 'Inventory Management',
+  SalesAndBilling: 'Sales & Billing',
+  PurchaseManagement: 'Purchase Management',
+  ContractManagement: 'Contract Management',
+  EquipmentManagement: 'Equipment Management',
+  DocumentManagement: 'Document Management',
+  HrAndPayroll: 'HR & Payroll',
+  HealthAndSafety: 'Health & Safety',
+  ClientAndVendor: 'Client & Vendor Portal',
+  QualityControl: 'Quality Control',
+  FinanceReport: 'Finance & Account Report',
+  CRM: 'CRM',
+}
 
 const Drawer = createDrawerNavigator()
 
 const DrawerNavigator = () => {
   const [collapsed, setCollapsed] = useState(false)
 
+  const role = useAppSelector(state => state.auth.user?.role)
+
+  // ✅ Normalize role defensively (handles ADMIN, Admin, " admin " etc. from API)
+  const normalizedRole = role?.toLowerCase().trim() as UserRole| undefined
+
+  // Debug log — remove once confirmed working
+  console.log('DRAWER ROLE raw:', role, '| normalized:', normalizedRole, '| screens:', menuConfig[normalizedRole!]?.length ?? 'NOT FOUND in menuConfig')
+
+  const allowedScreens =
+    normalizedRole && menuConfig[normalizedRole] && menuConfig[normalizedRole].length > 0
+      ? menuConfig[normalizedRole]
+      : [{ title: 'Dashboard', icon: 'speedometer', screenName: 'Dashboard' }]
+
   return (
     <Drawer.Navigator
-      initialRouteName="Dashboard"
       drawerContent={(props) => (
         <CustomDrawerContent
           {...props}
@@ -35,103 +94,51 @@ const DrawerNavigator = () => {
           setCollapsed={setCollapsed}
         />
       )}
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        drawerType: 'front',
-        drawerStyle: {
-          backgroundColor: '#0f172a',
-          width: collapsed ? 100 : 260,
-        },
-        drawerItemStyle: {
-          borderRadius: 16,
-        },
-        drawerActiveTintColor: '#000',
-        drawerInactiveTintColor: '#94a3b8',
-        drawerActiveBackgroundColor: '#ddd',
-        drawerLabelStyle: {
-          display: collapsed ? 'none' : 'flex',
-        },
-        drawerIcon: ({ color }) => {
-          let iconName: any
+      screenOptions={({ route }) => {
+        // Find icon for current route from allowedScreens
+        const menuItem = allowedScreens.find(item => item.screenName === route.name)
+        const iconName = menuItem?.icon ?? 'ellipse'
 
-          switch (route.name) {
-            case 'Dashboard':
-              iconName = 'speedometer'
-              break
-            case 'My Attendance':
-              iconName = 'person-add-sharp'
-              break
-            case 'Project Management':
-              iconName = 'briefcase'
-              break
-            case 'Users':
-              iconName = 'person-add-sharp'
-              break
-            case 'Bidding':
-              iconName = 'hammer'
-              break
-            case 'Inventory Management':
-              iconName = 'cube'
-              break
-            case 'Sales & Billing':
-              iconName = 'card'
-              break
-            case 'Purchase Management':
-              iconName = 'cart'
-              break
-            case 'Contract Management':
-              iconName = 'document-text'
-              break
-            case 'Equipment Management':
-              iconName = 'build'
-              break
-            case 'Document Management':
-              iconName = 'folder'
-              break
-            case 'HR & Payroll':
-              iconName = 'cash'
-              break
-            case 'Health & Safety':
-              iconName = 'medkit'
-              break
-            case 'Client & Vendor Portal':
-              iconName = 'business'
-              break
-            case 'Quality Control':
-              iconName = 'checkmark-done'
-              break
-            case 'Finance & Account Report':
-              iconName = 'stats-chart'
-              break
-            case 'CRM':
-              iconName = 'chatbubbles'
-              break
-            default:
-              iconName = 'ellipse'
-          }
-
-          return <Ionicons name={iconName} size={18} color={color} />
-        },
-      })}
+        return {
+          headerShown: false,
+          drawerType: 'front',
+          drawerStyle: {
+            backgroundColor: '#0f172a',
+            width: collapsed ? 100 : 260,
+          },
+          drawerItemStyle: {
+            borderRadius: 16,
+          },
+          drawerActiveTintColor: '#000',
+          drawerInactiveTintColor: '#94a3b8',
+          drawerActiveBackgroundColor: '#ddd',
+          drawerLabelStyle: {
+            display: collapsed ? 'none' : 'flex',
+          },
+          drawerIcon: ({ color }) => (
+            <Ionicons name={iconName as any} size={18} color={color} />
+          ),
+        }
+      }}
     >
-      <Drawer.Screen name="Dashboard" component={Dashboard} />
-            <Drawer.Screen name="My Attendance" component={MyAttendance} />
+      {allowedScreens.map(({ screenName, title }) => {
+        const Component = screenComponentMap[screenName]
 
-      <Drawer.Screen name="Project Management" component={ProjectManagement} />
-      <Drawer.Screen name="Users" component={Users} />
-      <Drawer.Screen name="Bidding" component={Bidding} />
-      <Drawer.Screen name="Inventory Management" component={InventoryManagement} />
-      <Drawer.Screen name="Sales & Billing" component={SalesAndBilling} />
-      <Drawer.Screen name="Purchase Management" component={PurchaseManagement} />
-      <Drawer.Screen name="Contract Management" component={ContractManagement} />
-      <Drawer.Screen name="Equipment Management" component={EquipmentManagement} />
-      <Drawer.Screen name="Document Management" component={DocumentManagement} />
-      <Drawer.Screen name="HR & Payroll" component={HrAndPayroll} />
-      <Drawer.Screen name="Health & Safety" component={HealthAndSafety} />
-      <Drawer.Screen name="Client & Vendor Portal" component={ClientAndVendor} />
-      <Drawer.Screen name="Quality Control" component={QualityControl} />
-      <Drawer.Screen name="Finance & Account Report" component={MyAttendance} />
-      <Drawer.Screen name="CRM" component={CRM} />
+        // Skip if component not found (safety guard)
+        if (!Component) return null
+
+        return (
+          <Drawer.Screen
+            key={screenName}
+            name={screenName}
+            component={Component}
+            options={{
+              drawerLabel: title,
+              title: screenDisplayName[screenName] ?? title,
+            }}
+          />
+        )
+      })}
     </Drawer.Navigator>
   )
 }

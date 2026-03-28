@@ -8,7 +8,7 @@ import authReducer from '../features/auth/authSlice';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth'], // only auth will persist
+  whitelist: ['auth'],
 };
 
 const rootReducer = combineReducers({
@@ -27,6 +27,5 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-// types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Keyboard,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -33,15 +34,18 @@ const LoginScreen = () => {
   const navigation = useNavigation<NavigationType>()
   const dispatch = useAppDispatch()
 
-  //  Redux state
+  // Redux state
   const { loading, error } = useAppSelector(state => state.auth)
 
-  //  Local UI state only
+  // Local UI state only
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const handleLogin = async () => {
+    // Dismiss keyboard before login
+    Keyboard.dismiss()
+    
     const result = await dispatch(
       loginUser({ email, password })
     )
@@ -60,6 +64,7 @@ const LoginScreen = () => {
         <ScrollView
           contentContainerStyle={styles.scrollView}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={styles.welcomeSection}>
             <Text style={styles.welcomeText}>Welcome !</Text>
